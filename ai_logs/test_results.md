@@ -523,3 +523,10 @@ Results:
 - GitHub marks `v1.2.2` immutable and Latest. API asset digests and re-downloaded bytes match every local release file.
 - Downloaded and installed executable self-tests passed. Installed path: `C:\Program Files\Artboard Cutter\ArtboardCutter.exe`.
 - Both executables remain intentionally unsigned. Clean-machine install/uninstall and production printer/RIP validation remain unverified.
+
+## 2026-09-08 - v1.2.3 packaged LZW preview verification
+
+- Regression test failed before the fix because `ArtboardCutter.spec` omitted `imagecodecs._imcd`, then passed after the module was added.
+- Supplied POSTER-4 and POSTER-6 source renders were nonblank; the rebuilt 1.2.3 executable visually displayed POSTER-4 in Live Preview.
+- Full unrestricted Windows run: 124 tests executed, 123 passed, 1 desktop screenshot-comparison skip, 0 failures. Compilation, `pip check`, Ruff fatal/bugbear checks, and `git diff --check` passed.
+- Packaged self-test exited 0. Standalone SHA-256: `06088C60D9658B99C0A0AF59731F3C7D168A1AA7D8C1E61167AC857A28771B13`; setup SHA-256: `31DA0894E26461990768A1E5770C6BD19587BD75826D348ACD3416B6828A012D`.

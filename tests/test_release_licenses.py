@@ -45,6 +45,12 @@ class ReleaseLicenseTests(unittest.TestCase):
         self.assertIn('build\\licenses', installer)
         self.assertIn('build/licenses', spec)
 
+    def test_executable_bundles_large_tiff_lzw_decoder(self):
+        root = Path(__file__).resolve().parents[1]
+        spec = (root / 'ArtboardCutter.spec').read_text()
+
+        self.assertIn('imagecodecs._imcd', spec)
+
 
 if __name__ == '__main__':
     unittest.main()

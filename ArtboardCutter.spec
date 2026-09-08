@@ -14,7 +14,7 @@ tmp_ret = collect_all('PIL')
 datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
 tmp_ret = collect_all('tkinterdnd2')
 datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
-hiddenimports += ['imagecodecs._shared_cython', 'imagecodecs._zlib']
+hiddenimports += ['imagecodecs._shared_cython', 'imagecodecs._imcd', 'imagecodecs._zlib']
 
 
 a = Analysis(

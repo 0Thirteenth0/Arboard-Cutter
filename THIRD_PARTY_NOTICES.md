@@ -5,7 +5,7 @@ Artboard Cutter is distributed under AGPL-3.0-only; see [LICENSE](LICENSE) and
 This notice does not replace any dependency's full license text.
 
 The installer installs a `licenses/` directory; the standalone download is
-accompanied by `ArtboardCutter-1.2.2-Licenses.zip`. The executable also embeds
+accompanied by `ArtboardCutter-1.2.3-Licenses.zip`. The executable also embeds
 these notices. `licenses/manifest.json` records the exact installed dependency
 versions and the license files copied from their distributions at build time.
 Some upstream notices cover optional codecs that the application does not use.
@@ -28,8 +28,8 @@ Some upstream notices cover optional codecs that the application does not use.
 
 ## Corresponding source and rebuilding
 
-The [v1.2.2 release](https://github.com/0Thirteenth0/Arboard-Cutter/releases/tag/v1.2.2)
-provides `ArtboardCutter-1.2.2-Source.zip`: the exact tagged application source,
+The [latest release](https://github.com/0Thirteenth0/Arboard-Cutter/releases/latest)
+provides `ArtboardCutter-1.2.3-Source.zip`: the exact tagged application source,
 build scripts, and the official `pymupdf-1.28.2.tar.gz` and
 `mupdf-1.28.2-source.tar.gz` source distributions. MuPDF's archive includes its
 third-party sources. See the

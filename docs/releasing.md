@@ -1,15 +1,15 @@
 # Windows release packaging
 
-The v1.2.2 release is an unsigned Windows x64 AGPLv3 release. GitHub Releases
+The current release is an unsigned Windows x64 AGPLv3 release. GitHub Releases
 hosts end-user downloads; GitHub Packages is not used for this desktop app.
 
 ## Release files
 
-- `ArtboardCutter-1.2.2-Setup.exe`: Inno installer with file association and notices.
+- `ArtboardCutter-<version>-Setup.exe`: Inno installer with file association and notices.
 - `ArtboardCutter.exe`: standalone executable with embedded runtime and notices.
-- `ArtboardCutter-1.2.2-Licenses.zip`: `LICENSE`, `NOTICE`, `THIRD_PARTY_NOTICES.md`,
+- `ArtboardCutter-<version>-Licenses.zip`: `LICENSE`, `NOTICE`, `THIRD_PARTY_NOTICES.md`,
   and `licenses/` for reading notices without installing the app.
-- `ArtboardCutter-1.2.2-Source.zip`: exact tagged application source ZIP, the official
+- `ArtboardCutter-<version>-Source.zip`: exact tagged application source ZIP, the official
   PyMuPDF 1.28.2 and MuPDF 1.28.2 source distributions, and rebuild directions.
 - `SHA256SUMS.txt`: SHA-256 of each of the four files above.
 

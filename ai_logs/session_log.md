@@ -423,3 +423,9 @@ Track AI-assisted work sessions here.
 - Published immutable GitHub release `v1.2.2` as Latest with the standalone EXE, installer, license archive, corresponding-source archive, and checksum manifest.
 - Re-downloaded all five assets, verified their SHA-256 hashes, and passed the downloaded executable self-test.
 - Installed the published setup package to `C:\Program Files\Artboard Cutter`; the installed 1.2.2 executable matches the published SHA-256 and passes self-test.
+
+## 2026-09-08 - v1.2.3 packaged TIFF preview hotfix
+
+- Reproduced the post-release gap: source rendering produced nonblank POSTER-4 and POSTER-6 previews, while the v1.2.2 PyInstaller archive omitted Imagecodecs' `_imcd` LZW module.
+- Added the missing packaged module and a manifest regression test; no TIFF decoding or GUI behavior was changed.
+- Built the unsigned 1.2.3 executable and installer, then launched the packaged executable with POSTER-4 and visually confirmed the artwork appears in Live Preview.
