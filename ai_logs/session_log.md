@@ -415,3 +415,11 @@ Track AI-assisted work sessions here.
 - Added a bounded TIFF-strip decoder fallback at the shared document opener, covering queue import, original-size detection, live preview, and raster export without loading the 1.17 GB uncompressed image at once.
 - Verified the supplied file imports at 2,079.921 x 4,029.964 mm, produces a nonblank preview, and exports readable nonblank CMYK JPG and TIFF samples.
 - The fallback reads the TIFF composite image and ignores embedded Photoshop layer records. Oversized TIFF PDF Preserve remains unsupported; use Raster mode.
+
+## 2026-09-08 - v1.2.2 release and installation
+
+- Bumped the application and installer to 1.2.2; updated README, changelog, notices, packaging guide, and public release notes.
+- Built unsigned Windows standalone and installer packages from commit `a7eb2dd8ae285b325c7acda647126ab6c6fc59b2` after all 123 tests passed.
+- Published immutable GitHub release `v1.2.2` as Latest with the standalone EXE, installer, license archive, corresponding-source archive, and checksum manifest.
+- Re-downloaded all five assets, verified their SHA-256 hashes, and passed the downloaded executable self-test.
+- Installed the published setup package to `C:\Program Files\Artboard Cutter`; the installed 1.2.2 executable matches the published SHA-256 and passes self-test.

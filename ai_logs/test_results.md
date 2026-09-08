@@ -513,3 +513,13 @@ Results:
 - Supplied-file 30 DPI smoke exports: 118 x 118 CMYK JPEG and TIFF outputs reopened successfully and had varying channel extrema.
 - Automated suite: 123 tests passed with no failures or skips in the unrestricted Windows run. The restricted sandbox run passed the non-GUI tests and skipped 12 Tk checks because it could not resolve `init.tcl`.
 - Entry-point self-test, compilation, and `git diff --check` passed.
+
+## 2026-09-08 - v1.2.2 release verification
+
+- Pre-release unrestricted Windows suite: 123 tests passed with no failures or skips; compilation, `pip check`, Ruff fatal/bugbear checks, and `git diff --check` passed.
+- Independent GitHub Actions Windows build for commit `a7eb2dd8ae285b325c7acda647126ab6c6fc59b2`: passed.
+- Standalone EXE: 57,875,762 bytes, ProductVersion 1.2.2, SHA-256 `8F592F2DE787F2FD0AE14FCB32E7761AAE489D2D6276184650F5F3CCB6555736`.
+- Setup package: 59,135,363 bytes, ProductVersion 1.2.2, SHA-256 `642F1C1E937F19D2F643587826A0EF1AF8F6428A2D3BA282FB33079CB17B3EA7`.
+- GitHub marks `v1.2.2` immutable and Latest. API asset digests and re-downloaded bytes match every local release file.
+- Downloaded and installed executable self-tests passed. Installed path: `C:\Program Files\Artboard Cutter\ArtboardCutter.exe`.
+- Both executables remain intentionally unsigned. Clean-machine install/uninstall and production printer/RIP validation remain unverified.
