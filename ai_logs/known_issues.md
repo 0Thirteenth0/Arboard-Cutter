@@ -66,3 +66,9 @@ These were initial audit risks. Several have since been addressed by the rebuild
 - PDF Preserve now restores the source PDF/Illustrator default layer visibility instead of allowing imported hidden OCGs to become visible in the output.
 - Windows Explorer launches now load `.artboard-job` files passed to the executable. Existing `.artboard-job.json` files remain compatible through the in-app Load Job action.
 - The installer association takes effect only after installing the rebuilt setup package; running a standalone executable does not register file types by itself.
+
+## 2026-09-08 - Oversized TIFF fallback limits
+
+- Oversized 8-bit, contiguous strip-based TIFF files can now import and export through the bounded fallback reader.
+- Tiled, planar-separate, or higher-bit-depth TIFF files that also exceed MuPDF's page limit still require flattening to an 8-bit strip-based TIFF first.
+- PDF Preserve is unavailable for TIFF files that require this fallback; use Raster mode. Layered TIFFs use their saved composite image rather than importing editable Photoshop layers.

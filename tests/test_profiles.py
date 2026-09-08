@@ -1,6 +1,9 @@
 import unittest
 import tempfile
 from pathlib import Path
+from unittest.mock import MagicMock, patch
+
+from PIL import Image
 
 from src.artboard_cutter_core.profiles import ArtworkProfile, create_artwork_profiles, sanitize_output_name, validate_output_name
 from tests.helpers import make_multipage_pdf
@@ -80,6 +83,21 @@ class ArtworkProfileTests(unittest.TestCase):
 
             self.assertEqual(len(profiles), 1)
             self.assertEqual(profiles[0].file_name, "Poster")
+
+    def test_oversized_tiff_uses_strip_decoder_fallback(self):
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "Oversized.tif"
+            Image.new("CMYK", (40, 20), (10, 20, 30, 40)).save(path, dpi=(100, 100), compression="tiff_lzw")
+            rejected = MagicMock()
+            rejected.load_page.side_effect = RuntimeError("Overly large image")
+
+            with patch("src.artboard_cutter_core.pdf_io.fitz.open", return_value=rejected):
+                profiles = create_artwork_profiles(path)
+
+            rejected.close.assert_called_once()
+            self.assertEqual(len(profiles), 1)
+            self.assertAlmostEqual(profiles[0].original_width_mm, 10.16, places=2)
+            self.assertAlmostEqual(profiles[0].original_height_mm, 5.08, places=2)
 
     def test_output_name_validation(self):
         self.assertEqual(validate_output_name(" Edited "), "Edited")

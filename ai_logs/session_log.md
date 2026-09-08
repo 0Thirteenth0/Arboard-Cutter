@@ -408,3 +408,10 @@ Track AI-assisted work sessions here.
 - Built the unsigned Windows standalone executable and Inno installer with full notices.
 - Verified all 122 Windows tests, dependency consistency, compilation, and the packaged Tk/TkDND/TIFF self-test.
 - Kept clean-machine installation/uninstallation and production print/RIP proof as explicitly unverified.
+
+## 2026-09-08 - Oversized layered TIFF input fix
+
+- Reproduced `POSTER-6.tif` failing in PyMuPDF with `FzErrorLimit: Overly large image`; the valid 12,283 x 23,799 CMYK/LZW composite exceeds MuPDF's image-page limit.
+- Added a bounded TIFF-strip decoder fallback at the shared document opener, covering queue import, original-size detection, live preview, and raster export without loading the 1.17 GB uncompressed image at once.
+- Verified the supplied file imports at 2,079.921 x 4,029.964 mm, produces a nonblank preview, and exports readable nonblank CMYK JPG and TIFF samples.
+- The fallback reads the TIFF composite image and ignores embedded Photoshop layer records. Oversized TIFF PDF Preserve remains unsupported; use Raster mode.

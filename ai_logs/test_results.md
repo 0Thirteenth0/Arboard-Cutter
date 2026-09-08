@@ -505,3 +505,11 @@ Results:
 - PyMuPDF source archive matches the PyPI SHA-256. Separate MuPDF source archive has 8,689 entries,
   including 7,170 third-party entries and 2,024 C/C++ source entries.
 - Not performed: clean-machine install/uninstall and production print/RIP proof.
+
+## 2026-09-08 - Oversized layered TIFF input validation
+
+- Supplied-file reproduction before repair: container opened, but `load_page(0)` raised `FzErrorLimit: Overly large image`.
+- Supplied-file verification after repair: one 12,283 x 23,799 CMYK page imported at its tagged 150 DPI; 590 x 1,142 RGB preview was non-uniform.
+- Supplied-file 30 DPI smoke exports: 118 x 118 CMYK JPEG and TIFF outputs reopened successfully and had varying channel extrema.
+- Automated suite: 123 tests passed with no failures or skips in the unrestricted Windows run. The restricted sandbox run passed the non-GUI tests and skipped 12 Tk checks because it could not resolve `init.tcl`.
+- Entry-point self-test, compilation, and `git diff --check` passed.

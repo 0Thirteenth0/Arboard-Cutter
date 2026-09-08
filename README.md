@@ -2,11 +2,11 @@
 
 Windows desktop tool for resizing large-format artwork and cutting it into numbered print panels, with outside bleed and repeated artwork at panel seams.
 
-**Version 1.2.1 · Windows x64 · AGPLv3 · Unsigned distribution**
+**Version 1.2.2 · Windows x64 · AGPLv3 · Unsigned distribution**
 
-**[Download the latest Windows release](https://github.com/0Thirteenth0/Arboard/releases/latest)**
+**[Download the latest Windows release](https://github.com/0Thirteenth0/Arboard-Cutter/releases/latest)**
 
-Choose `ArtboardCutter-1.2.1-Setup.exe` for installation or `ArtboardCutter.exe` for
+Choose `ArtboardCutter-1.2.2-Setup.exe` for installation or `ArtboardCutter.exe` for
 standalone use. Release assets also include license notices, corresponding source,
 and `SHA256SUMS.txt` for verifying downloads.
 
@@ -31,11 +31,11 @@ Import PDF, PDF-compatible Adobe Illustrator files, JPG, PNG, or TIFF. Export ve
 
 ### Windows installer
 
-Download and run `ArtboardCutter-1.2.1-Setup.exe` from [Releases](https://github.com/0Thirteenth0/Arboard/releases/latest), or [build it from source](#build-the-installer). Setup installs the application, license notices, a Start menu shortcut, an optional desktop shortcut, and the `.artboard-job` file association. Installation requests administrator permission.
+Download and run `ArtboardCutter-1.2.2-Setup.exe` from [Releases](https://github.com/0Thirteenth0/Arboard-Cutter/releases/latest), or [build it from source](#build-the-installer). Setup installs the application, license notices, a Start menu shortcut, an optional desktop shortcut, and the `.artboard-job` file association. Installation requests administrator permission.
 
 ### Standalone executable
 
-Download `ArtboardCutter.exe` and the accompanying `ArtboardCutter-1.2.1-Licenses.zip` from the release page. Extract the notices beside the executable and run it directly. The packaged application includes Python, Tcl/Tk, and its runtime dependencies; Python does not need to be installed separately. The standalone executable does not register Windows file associations by itself.
+Download `ArtboardCutter.exe` and the accompanying `ArtboardCutter-1.2.2-Licenses.zip` from the release page. Extract the notices beside the executable and run it directly. The packaged application includes Python, Tcl/Tk, and its runtime dependencies; Python does not need to be installed separately. The standalone executable does not register Windows file associations by itself.
 
 Both distribution formats are intentionally **unsigned**. Windows may display an unknown-publisher or SmartScreen warning. Only run a build from a source you trust, and follow any company security policy. Signing is not required for the application to work.
 
@@ -43,7 +43,7 @@ Built binaries are not checked into this Git repository. Local build outputs are
 
 ```text
 dist\ArtboardCutter.exe
-release\ArtboardCutter-1.2.1-Setup.exe
+release\ArtboardCutter-1.2.2-Setup.exe
 ```
 
 ## Quick start
@@ -195,6 +195,7 @@ These screenshots illustrate numbered panel output and assembly in Illustrator; 
 | A preset appears to do nothing | Click **Apply** and inspect export settings. Dimensions and output folder intentionally stay unchanged. |
 | Files cannot be dropped | Drop inside Artwork Queue. Avoid running only Artboard Cutter as Administrator while Explorer runs normally. |
 | A TIFF panel is blank or verification fails | Check the source crop and Activity Log. Review disk space and try a small proof export. |
+| A very large TIFF will not load | Use v1.2.2 or newer and Raster mode. Oversized tiled, planar-separate, or higher-bit-depth TIFFs still need flattening to an 8-bit strip-based TIFF. |
 | Raster DPI is lower than entered | Check preflight's effective DPI. Large JPG/raster-PDF panels share a reduced safe DPI; TIFF is streamed. |
 | Illustrator names are unavailable | Illustrator must already be running and free of modal/missing-link dialogs. Numbered names remain usable. |
 | Check for Updates is unavailable | No hosted update manifest is configured by default. Install a new supplied build or rebuild from source. |
@@ -205,7 +206,7 @@ Production acceptance still requires checks in the intended printer/RIP, particu
 
 ### Run from source
 
-Use 64-bit Python with a working Tk runtime. CI is configured for Python 3.13; the local v1.2.1 Windows build was tested with Python 3.14.6. Dependencies are pinned in `requirements.txt` and `requirements-dev.txt`.
+Use 64-bit Python with a working Tk runtime. CI is configured for Python 3.13; the local v1.2.2 Windows build was tested with Python 3.14.6. Dependencies are pinned in `requirements.txt` and `requirements-dev.txt`.
 
 From the repository root:
 
@@ -223,7 +224,7 @@ python -m venv .venv
 .\.venv\Scripts\python.exe -m pip check
 ```
 
-The v1.2.1 suite contains 122 tests covering geometry, export formats, TIFF content, hidden layers, settings/jobs, startup loading, transactional writes, queue lifecycle, themes, and release-license packaging. GUI tests can skip if the host cannot initialize Tk or capture a desktop. See [testing notes](docs/testing.md) for manual integration checks and [recorded results](ai_logs/test_results.md) for dated evidence.
+The v1.2.2 suite contains 123 tests covering geometry, export formats, TIFF content and oversized input, hidden layers, settings/jobs, startup loading, transactional writes, queue lifecycle, themes, and release-license packaging. GUI tests can skip if the host cannot initialize Tk or capture a desktop. See [testing notes](docs/testing.md) for manual integration checks and [recorded results](ai_logs/test_results.md) for dated evidence.
 
 ### Build the standalone executable
 
@@ -253,7 +254,7 @@ $env:PATH = "$env:LOCALAPPDATA\Programs\Inno Setup 6;$env:PATH"
 .\tools\build_release.ps1 -CertificateThumbprint ''
 ```
 
-This rebuilds the standalone executable and compiles `installer/ArtboardCutter.iss` into `release/ArtboardCutter-1.2.1-Setup.exe`. The empty certificate argument explicitly keeps the build unsigned. If ISCC is not on PATH, the script leaves the standalone EXE and prints a warning instead of producing an installer.
+This rebuilds the standalone executable and compiles `installer/ArtboardCutter.iss` into `release/ArtboardCutter-1.2.2-Setup.exe`. The empty certificate argument explicitly keeps the build unsigned. If ISCC is not on PATH, the script leaves the standalone EXE and prints a warning instead of producing an installer.
 
 `APP_VERSION` in `src/artboard_cutter_core/version.py` is the version source. `tools/generate_version_metadata.py` generates `version_info.txt` and `installer/version.iss`. `update-manifest.example.json` is only a template; automatic update checking requires a configured HTTPS manifest URL.
 
@@ -275,6 +276,12 @@ tools/                            Build and metadata utilities
 ```
 
 ## Recent changes
+
+### 1.2.2
+
+- Load and preview oversized layered TIFF artwork that exceeds PyMuPDF's image-page limit.
+- Stream the saved TIFF composite through bounded strips for raster PDF/JPG/TIFF export without materializing the full source image.
+- Report unsupported oversized TIFF layouts and PDF Preserve mode clearly instead of leaving the queue in a failed-probe state.
 
 ### 1.2.1
 
@@ -302,10 +309,10 @@ warranty. See [LICENSE](LICENSE), [NOTICE](NOTICE), and
 This license covers the program, not your imported/exported artwork.
 
 The release page provides the exact application source and build scripts, plus
-the PyMuPDF/MuPDF source distribution, in `ArtboardCutter-1.2.1-Source.zip`.
+the PyMuPDF/MuPDF source distribution, in `ArtboardCutter-1.2.2-Source.zip`.
 The ordinary GitHub source-code ZIP contains only this repository.
 License texts for bundled components are included with the installer and in
-`ArtboardCutter-1.2.1-Licenses.zip`. **About** in the application also identifies
+`ArtboardCutter-1.2.2-Licenses.zip`. **About** in the application also identifies
 the license, warranty disclaimer, and source location.
 
 See [release packaging notes](docs/releasing.md) for artifact contents and checks.
