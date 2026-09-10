@@ -7,6 +7,8 @@ try:
 except ImportError:
     import fitz  # type: ignore
 
+_TIFF_FALLBACK_REVISIONS: set[tuple[Path, int, int]] = set()
+
 
 class _TiffDocument:
     """Small PyMuPDF-compatible adapter for TIFF pages MuPDF refuses as oversized."""
@@ -147,6 +149,18 @@ def force_page_boxes(page: fitz.Page) -> None:
 def open_pdf_robust(p: Path):
     p = Path(p)
     is_tiff = p.suffix.lower() in {".tif", ".tiff"}
+    revision = None
+    if is_tiff:
+        try:
+            stat = p.stat()
+            revision = (p.resolve(), stat.st_size, stat.st_mtime_ns)
+        except OSError:
+            pass
+        if revision in _TIFF_FALLBACK_REVISIONS:
+            try:
+                return _TiffDocument(p)
+            except Exception:
+                _TIFF_FALLBACK_REVISIONS.discard(revision)
     try:
         doc = fitz.open(str(p))
         if is_tiff:
@@ -154,7 +168,10 @@ def open_pdf_robust(p: Path):
                 doc.load_page(0)
             except Exception:
                 doc.close()
-                return _TiffDocument(p)
+                fallback = _TiffDocument(p)
+                if revision is not None:
+                    _TIFF_FALLBACK_REVISIONS.add(revision)
+                return fallback
         return doc
     except Exception:
         pass
@@ -170,7 +187,10 @@ def open_pdf_robust(p: Path):
         pass
     if is_tiff:
         try:
-            return _TiffDocument(p)
+            fallback = _TiffDocument(p)
+            if revision is not None:
+                _TIFF_FALLBACK_REVISIONS.add(revision)
+            return fallback
         except Exception:
             pass
     raise RuntimeError("Failed to open stream or unsupported format")

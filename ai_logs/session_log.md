@@ -435,3 +435,9 @@ Track AI-assisted work sessions here.
 - Inspected the running five-file TADA job and its persistent export log. The four failed profiles were set to PDF Preserve; the one successful profile was Raster. All sources were 1.42-1.97 GB TIFFs, and free disk space was not the constraint.
 - Marked the oversized-TIFF adapter as unable to preserve PDF content and routed that capability through the shared exporter. PDF Preserve requests for these TIFFs now produce raster PDFs using the existing safe-DPI and output-verification path.
 - Added an end-to-end regression that exercises an oversized-TIFF adapter through PDF output; the full non-GUI suite passed 113 tests and 12 GUI checks remained unavailable in the restricted Tcl host.
+
+## 2026-09-10 - Oversized TIFF preview latency
+
+- Timed the real TADA file path: the repeated MuPDF compatibility probe took 2.21 seconds, while rendering the bounded 1,479 x 1,600 preview took 0.38 seconds.
+- Cached only the fallback decision by resolved path, size, and modification time in the shared document opener. Queue import still performs the compatibility probe once; subsequent previews skip it, and changed files are probed again.
+- On a real 1.77 GB TADA TIFF, preview creation after the import probe completed in 0.40 seconds. No preview resolution or export-quality setting changed.

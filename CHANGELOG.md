@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 ### Fixed
 
 - Fall back to safe raster-PDF export when PDF Preserve is selected for an oversized TIFF, instead of failing the queue item.
+- Reuse oversized-TIFF compatibility detection so the preview does not repeat a multi-second failed MuPDF probe after queue import.
 
 ## [1.2.3] - 2026-09-08
 

@@ -280,6 +280,7 @@ tools/                            Build and metadata utilities
 ### Unreleased
 
 - Export oversized TIFFs as safe raster PDFs when their queue item is set to PDF Preserve, rather than failing the item.
+- Open previews faster after importing oversized TIFFs by reusing the file-revision-aware fallback decision.
 
 ### 1.2.3
 

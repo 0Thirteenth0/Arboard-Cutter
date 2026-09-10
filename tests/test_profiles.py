@@ -1,3 +1,4 @@
+import os
 import unittest
 import tempfile
 from pathlib import Path
@@ -5,6 +6,7 @@ from unittest.mock import MagicMock, patch
 
 from PIL import Image
 
+from src.artboard_cutter_core.pdf_io import open_pdf_robust
 from src.artboard_cutter_core.profiles import ArtworkProfile, create_artwork_profiles, sanitize_output_name, validate_output_name
 from tests.helpers import make_multipage_pdf
 
@@ -98,6 +100,27 @@ class ArtworkProfileTests(unittest.TestCase):
             self.assertEqual(len(profiles), 1)
             self.assertAlmostEqual(profiles[0].original_width_mm, 10.16, places=2)
             self.assertAlmostEqual(profiles[0].original_height_mm, 5.08, places=2)
+
+    def test_oversized_tiff_skips_repeated_mupdf_probe(self):
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "Oversized.tif"
+            Image.new("CMYK", (40, 20), (10, 20, 30, 40)).save(path, dpi=(100, 100))
+            rejected = MagicMock()
+            rejected.load_page.side_effect = RuntimeError("Overly large image")
+
+            with patch("src.artboard_cutter_core.pdf_io.fitz.open", return_value=rejected) as fitz_open:
+                first = open_pdf_robust(path)
+                first.close()
+                second = open_pdf_robust(path)
+                second.close()
+                self.assertEqual(fitz_open.call_count, 1)
+
+                stat = path.stat()
+                os.utime(path, ns=(stat.st_atime_ns, stat.st_mtime_ns + 1_000_000_000))
+                changed = open_pdf_robust(path)
+                changed.close()
+
+            self.assertEqual(fitz_open.call_count, 2)
 
     def test_output_name_validation(self):
         self.assertEqual(validate_output_name(" Edited "), "Edited")

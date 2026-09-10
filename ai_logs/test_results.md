@@ -536,3 +536,10 @@ Results:
 - Live incident evidence: four profiles failed with `PDF Preserve is unavailable for oversized TIFF files`; the fifth profile used Raster and completed at 124 effective DPI.
 - Regression failed before the fix at `_TiffDocument.convert_to_pdf`, then passed after the shared exporter routed unsupported preserve requests into raster PDF.
 - Related export/profile tests: 51 passed, 0 failed. Full restricted-host suite: 125 executed, 113 passed, 12 Tk GUI checks skipped because the host Tcl runtime could not initialize.
+
+## 2026-09-10 - Oversized TIFF preview latency verification
+
+- Regression proved the same unchanged oversized TIFF invokes the expensive MuPDF probe once across repeated opens; it failed at two calls before the repair and passed at one afterward.
+- Real-file timing on `2026_G2E_TADA_04.tif`: 2.49 seconds for the initial import compatibility probe, then 0.40 seconds to reopen and render the 1,600-pixel preview.
+- Focused profile/export/GUI-wrapper suite: 30 passed, 0 failed.
+- Full restricted-host suite: 126 executed, 114 passed, 12 Tk GUI checks skipped; compilation, dependency integrity, Ruff fatal/bugbear checks, and whitespace checks passed.
