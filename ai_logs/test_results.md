@@ -530,3 +530,9 @@ Results:
 - Supplied POSTER-4 and POSTER-6 source renders were nonblank; the rebuilt 1.2.3 executable visually displayed POSTER-4 in Live Preview.
 - Full unrestricted Windows run: 124 tests executed, 123 passed, 1 desktop screenshot-comparison skip, 0 failures. Compilation, `pip check`, Ruff fatal/bugbear checks, and `git diff --check` passed.
 - Packaged self-test exited 0. Standalone SHA-256: `06088C60D9658B99C0A0AF59731F3C7D168A1AA7D8C1E61167AC857A28771B13`; setup SHA-256: `31DA0894E26461990768A1E5770C6BD19587BD75826D348ACD3416B6828A012D`.
+
+## 2026-09-10 - Oversized TIFF PDF fallback verification
+
+- Live incident evidence: four profiles failed with `PDF Preserve is unavailable for oversized TIFF files`; the fifth profile used Raster and completed at 124 effective DPI.
+- Regression failed before the fix at `_TiffDocument.convert_to_pdf`, then passed after the shared exporter routed unsupported preserve requests into raster PDF.
+- Related export/profile tests: 51 passed, 0 failed. Full restricted-host suite: 125 executed, 113 passed, 12 Tk GUI checks skipped because the host Tcl runtime could not initialize.

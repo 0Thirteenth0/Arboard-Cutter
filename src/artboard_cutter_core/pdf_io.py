@@ -12,6 +12,7 @@ class _TiffDocument:
     """Small PyMuPDF-compatible adapter for TIFF pages MuPDF refuses as oversized."""
 
     is_pdf = False
+    supports_pdf_preserve = False
 
     def __init__(self, path: Path):
         try:

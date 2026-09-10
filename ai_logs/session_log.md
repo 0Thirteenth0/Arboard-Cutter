@@ -429,3 +429,9 @@ Track AI-assisted work sessions here.
 - Reproduced the post-release gap: source rendering produced nonblank POSTER-4 and POSTER-6 previews, while the v1.2.2 PyInstaller archive omitted Imagecodecs' `_imcd` LZW module.
 - Added the missing packaged module and a manifest regression test; no TIFF decoding or GUI behavior was changed.
 - Built the unsigned 1.2.3 executable and installer, then launched the packaged executable with POSTER-4 and visually confirmed the artwork appears in Live Preview.
+
+## 2026-09-10 - Oversized TIFF PDF fallback
+
+- Inspected the running five-file TADA job and its persistent export log. The four failed profiles were set to PDF Preserve; the one successful profile was Raster. All sources were 1.42-1.97 GB TIFFs, and free disk space was not the constraint.
+- Marked the oversized-TIFF adapter as unable to preserve PDF content and routed that capability through the shared exporter. PDF Preserve requests for these TIFFs now produce raster PDFs using the existing safe-DPI and output-verification path.
+- Added an end-to-end regression that exercises an oversized-TIFF adapter through PDF output; the full non-GUI suite passed 113 tests and 12 GUI checks remained unavailable in the restricted Tcl host.

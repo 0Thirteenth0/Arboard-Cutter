@@ -98,6 +98,13 @@ def _process_file_locked(file_path: Path, options: ExportOptions, log_cb=None) -
         target_h_pt = mm_to_pt(target_h_mm)
 
         export_fmt = values.export_format
+        preserve_vectors = values.preserve_vectors and getattr(src, "supports_pdf_preserve", True)
+
+        if values.preserve_vectors and not preserve_vectors and log_cb:
+            log_cb(
+                "[FALLBACK] This oversized TIFF cannot use PDF Preserve; "
+                "exporting it as a raster PDF at the safest available DPI."
+            )
 
         if log_cb:
             log_cb("")
@@ -108,7 +115,7 @@ def _process_file_locked(file_path: Path, options: ExportOptions, log_cb=None) -
                 f"Mode: {values.overlap_mode}   Height: {values.height_mm:.1f} mm   Artboards: {len(values.widths_mm)}"
             )
             log_cb(f"Widths: {', '.join(str(int(w)) if float(w).is_integer() else str(w) for w in values.widths_mm)} mm")
-            if values.preserve_vectors and options.vector_fit_mode == "width":
+            if preserve_vectors and options.vector_fit_mode == "width":
                 page = src.load_page(options.page_index)
                 scale = (target_w_pt / float(page.rect.width)) if page.rect.width else 1.0
                 calc_h_mm = pt_to_mm(scale * float(page.rect.height))
@@ -116,8 +123,8 @@ def _process_file_locked(file_path: Path, options: ExportOptions, log_cb=None) -
             else:
                 log_cb(f"Target full size: {pt_to_mm(target_w_pt):.1f} x {pt_to_mm(target_h_pt):.1f} mm")
             preserve_mode = "PDF PRESERVE (stretch)" if options.vector_fit_mode == "stretch" else f"PDF PRESERVE (fit {options.vector_fit_mode})"
-            mode = preserve_mode if values.preserve_vectors else "RASTER (non-uniform)"
-            color_note = "" if values.preserve_vectors else f"  Color: {values.color_mode}"
+            mode = preserve_mode if preserve_vectors else "RASTER (non-uniform)"
+            color_note = "" if preserve_vectors else f"  Color: {values.color_mode}"
             log_cb(f"Mode: {mode}  Export as: {export_fmt.upper()}{color_note}  Output dir: {options.output_root}")
 
         log_event(
@@ -128,13 +135,14 @@ def _process_file_locked(file_path: Path, options: ExportOptions, log_cb=None) -
             page_index=options.page_index,
             panels=len(panel_layout),
             target_size_mm=[target_w_mm, target_h_mm],
-            preserve_vectors=values.preserve_vectors,
+            preserve_vectors=preserve_vectors,
+            preserve_vectors_requested=values.preserve_vectors,
         )
 
         outdir = options.output_root
         outdir.mkdir(parents=True, exist_ok=True)
 
-        if values.preserve_vectors:
+        if preserve_vectors:
             output_paths = export_artboards_vector_uniform(
                 src,
                 values.widths_mm,

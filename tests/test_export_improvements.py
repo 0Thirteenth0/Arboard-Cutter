@@ -10,6 +10,7 @@ except ImportError:
     import fitz  # type: ignore
 
 from src.artboard_cutter_core.export import ExportOptions, process_file
+from src.artboard_cutter_core.pdf_io import _TiffDocument
 from src.artboard_cutter_core.preflight import combined_disk_space_warning, estimate_export_job
 from src.artboard_cutter_core.raster_export import should_use_bigtiff, tiff_band_rows
 from src.artboard_cutter_core.validation import validate_export_values
@@ -18,6 +19,33 @@ from tests.helpers import make_grid_pdf
 
 
 class ExportImprovementTests(unittest.TestCase):
+    def test_pdf_preserve_falls_back_to_raster_pdf_for_oversized_tiff(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            source = root / "oversized.tif"
+            Image.new("CMYK", (40, 20), (10, 20, 30, 40)).save(source, dpi=(100, 100))
+
+            with patch(
+                "src.artboard_cutter_core.export.open_pdf_robust",
+                side_effect=lambda _path: _TiffDocument(source),
+            ):
+                result = process_file(
+                    source,
+                    ExportOptions(
+                        0,
+                        [10.16],
+                        5.08,
+                        0,
+                        72,
+                        root / "out",
+                        export_fmt="pdf",
+                        preserve_vectors=True,
+                    ),
+                )
+
+            self.assertEqual(result.output_paths, (root / "out" / "oversized_1.pdf",))
+            self.assertTrue(result.output_paths[0].is_file())
+
     def test_streaming_tiff_embeds_selected_rgb_profile(self):
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)

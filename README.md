@@ -115,7 +115,7 @@ With widths `1000 1000 1000`, height `2000`, bleed `10`, and Shared overlap `40`
 | Vector text/shapes | Rendered to pixels | Retained where supported by the source PDF |
 | DPI | Controls raster resolution | Not applicable |
 | RGB/CMYK and ICC controls | Available | Disabled; source PDF content is retained |
-| Raster source images | Resampled to the target | Embedded in PDF; not traced into vectors |
+| Raster source images | Resampled to the target | Embedded in PDF when supported; oversized TIFFs fall back to raster PDF |
 
 **PDF Preserve** scales the full source page, then clips panels from the scaled master. It retains the default hidden/visible state of source PDF/Illustrator optional-content layers. This uses the PDF-compatible data saved in the file, not unsaved changes in an open Illustrator document. Save the AI file before importing/exporting.
 
@@ -195,7 +195,7 @@ These screenshots illustrate numbered panel output and assembly in Illustrator; 
 | A preset appears to do nothing | Click **Apply** and inspect export settings. Dimensions and output folder intentionally stay unchanged. |
 | Files cannot be dropped | Drop inside Artwork Queue. Avoid running only Artboard Cutter as Administrator while Explorer runs normally. |
 | A TIFF panel is blank or verification fails | Check the source crop and Activity Log. Review disk space and try a small proof export. |
-| A very large TIFF will not load or preview | Use v1.2.3 or newer and Raster mode. Oversized tiled, planar-separate, or higher-bit-depth TIFFs still need flattening to an 8-bit strip-based TIFF. |
+| A very large TIFF will not load, preview, or export | Use v1.2.3 or newer. Oversized 8-bit strip-based TIFFs load normally; if PDF Preserve cannot wrap one safely, the current code falls back to raster PDF. Tiled, planar-separate, or higher-bit-depth TIFFs still need flattening. |
 | Raster DPI is lower than entered | Check preflight's effective DPI. Large JPG/raster-PDF panels share a reduced safe DPI; TIFF is streamed. |
 | Illustrator names are unavailable | Illustrator must already be running and free of modal/missing-link dialogs. Numbered names remain usable. |
 | Check for Updates is unavailable | No hosted update manifest is configured by default. Install a new supplied build or rebuild from source. |
@@ -276,6 +276,10 @@ tools/                            Build and metadata utilities
 ```
 
 ## Recent changes
+
+### Unreleased
+
+- Export oversized TIFFs as safe raster PDFs when their queue item is set to PDF Preserve, rather than failing the item.
 
 ### 1.2.3
 

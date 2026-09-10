@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
+## [Unreleased]
+
+### Fixed
+
+- Fall back to safe raster-PDF export when PDF Preserve is selected for an oversized TIFF, instead of failing the queue item.
+
 ## [1.2.3] - 2026-09-08
 
 ### Fixed
