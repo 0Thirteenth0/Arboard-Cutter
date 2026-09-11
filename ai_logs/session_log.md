@@ -449,3 +449,10 @@ Track AI-assisted work sessions here.
 - Renamed the visible PDF Preserve option to Lossless PDF while retaining the old stored value for compatibility.
 - A 1.42 GB uncompressed CMYK TADA TIFF exported into two verified PDFs in 6.81 seconds; supplied LZW `POSTER-6.tif` exported into two verified PDFs in 9.16 seconds.
 - Updated README, changelog, known limitations, and release version for 1.2.4.
+
+## 2026-09-10 - v1.2.4 release and installation
+
+- Committed the lossless raster PDF implementation at `e1adc221389b3e87f50ae4735f442e6c2c5cf8e5` and pushed `main` plus tag `v1.2.4`.
+- Built the unsigned standalone executable and Inno Setup installer, produced notices/corresponding-source archives, and published five verified GitHub assets.
+- GitHub marks v1.2.4 immutable and Latest. Server digests and independently re-downloaded asset hashes match the local release manifest.
+- Installed v1.2.4 to `C:\Program Files\Artboard Cutter`; its executable matches the packaged SHA-256 and both installed/downloaded self-tests passed.

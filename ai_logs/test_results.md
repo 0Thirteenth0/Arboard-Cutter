@@ -555,3 +555,6 @@ Results:
 - Standalone EXE: 57,989,031 bytes, ProductVersion 1.2.4, SHA-256 `0BA8AFCB2A14655D0F83436C07CBE8219EDCF6EBC7ECB5E4C72DB04FC44882BA`.
 - Setup package: 59,249,683 bytes, ProductVersion 1.2.4, SHA-256 `F2A7747714322605D1E0EF58B43D15DAEE639E226B3514E3C1BBFAED22466DBC`.
 - Both binaries remain intentionally unsigned.
+- GitHub release `v1.2.4` is published, immutable, non-draft, and Latest; all five server asset digests match local files.
+- Re-downloaded all five public assets; the four payload hashes match the downloaded `SHA256SUMS.txt` and the downloaded executable self-test exited 0.
+- Installed executable ProductVersion is 1.2.4, SHA-256 is `0BA8AFCB2A14655D0F83436C07CBE8219EDCF6EBC7ECB5E4C72DB04FC44882BA`, and installed self-test exited 0.
