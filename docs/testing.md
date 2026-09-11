@@ -188,7 +188,7 @@ The 2026-08-11 baseline runs the complete suite on a real Windows desktop so Tk,
 git diff --check
 ```
 
-Expected baseline: 118 tests, 0 failures, 0 skips. Coverage includes every output format, RGB/CMYK, Shared/Left overlap, PDF Preserve layer visibility, multi-page input, cancellation/rollback, overwrite/stale cleanup, malformed persistence data, Explorer job launch, queue lifecycle, themes, recovery, and multi-panel TIFF content checks.
+Expected baseline: 129 tests executed with 12 GUI skips when Tk is unavailable. Coverage includes every output format, lossless RGB/CMYK TIFF-to-PDF bytes, Shared/Left overlap, PDF layer visibility, multi-page input, cancellation/rollback, overwrite/stale cleanup, malformed persistence data, Explorer job launch, queue lifecycle, themes, recovery, and multi-panel TIFF content checks.
 
 For release acceptance, install the generated setup package and verify that double-clicking a `.artboard-job` file with spaces in its path launches Artboard Cutter and loads the saved queue. Legacy `.artboard-job.json` files should remain loadable from **Load Job...** but are intentionally not registered as the system-wide `.json` handler.
 

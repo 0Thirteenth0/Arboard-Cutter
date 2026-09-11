@@ -344,3 +344,10 @@ card-based production-tool layout:
 - Layer state matching uses the imported OCG names and stable occurrence order, preserving source default-hidden layers without flattening vector content.
 - The GUI accepts a startup job path, delays loading until Tk initialization is complete, and suppresses the competing crash-recovery prompt for that launch.
 - `.artboard-job` is the dedicated Windows document extension. The installer registers its icon and quoted open command; legacy compound `.artboard-job.json` files remain readable only through the in-app loader so Artboard Cutter never claims all JSON files.
+
+## 2026-09-10 - Lossless oversized TIFF PDF path
+
+- The existing preserve-mode decision remains the shared UI and settings contract; its visible label is now Lossless PDF.
+- Ordinary PDF/AI and supported raster documents continue through PyMuPDF's page-clipping path.
+- Oversized TIFF fallback documents route to a bounded TIFF-to-PDF writer that reads source strips once, divides rows among every panel, applies fast lossless Flate compression, and never creates a full-frame raster.
+- Each panel contains only its required source columns, including overlap, instead of duplicating the complete source image behind every PDF crop.

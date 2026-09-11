@@ -1,16 +1,20 @@
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 try:
     import pymupdf as fitz
 except ImportError:
     import fitz  # type: ignore
-from PIL import Image
+from PIL import Image, ImageCms
+import numpy as np
+import tifffile
 
 from src.artboard_cutter_core.export import ExportOptions, process_file
 from src.artboard_cutter_core.errors import ExportCancelled, ExportError
 from src.artboard_cutter_core.output_io import OutputConflictError, StagedOutputSet
+from src.artboard_cutter_core.pdf_io import _TiffDocument
 from src.artboard_cutter_core.raster_export import MAX_RENDER_BYTES, choose_safe_raster_dpi
 from src.artboard_cutter_core.units import pt_to_mm
 from tests.helpers import (
@@ -186,6 +190,122 @@ class ExportGeometryTests(unittest.TestCase):
             process_file(src, options)
             self.assert_pdf_size_mm(options.output_root / "image_1.pdf", 80, 80)
             self.assert_pdf_size_mm(options.output_root / "image_2.pdf", 80, 80)
+
+    def test_pdf_preserve_exports_oversized_tiff_pixels_losslessly(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            src = root / "oversized.tif"
+            pixels = np.array(
+                [
+                    [[255, 0, 0], [200, 0, 0], [150, 0, 0], [0, 0, 150], [0, 0, 200], [0, 0, 255]],
+                    [[255, 50, 0], [200, 50, 0], [150, 50, 0], [0, 50, 150], [0, 50, 200], [0, 50, 255]],
+                ],
+                dtype=np.uint8,
+            )
+            tifffile.imwrite(
+                src,
+                pixels,
+                photometric="rgb",
+                compression="lzw",
+                rowsperstrip=1,
+                resolution=(25.4, 25.4),
+            )
+            options = ExportOptions(
+                bleed_mm=0,
+                widths_mm=[3, 3],
+                height_mm=2,
+                overlap_mm=0,
+                dpi=1,
+                output_root=root / "out",
+                export_fmt="pdf",
+                preserve_vectors=True,
+            )
+
+            with patch("src.artboard_cutter_core.export.open_pdf_robust", side_effect=lambda _path: _TiffDocument(src)):
+                result = process_file(src, options)
+
+            for index, expected in enumerate((pixels[:, :3], pixels[:, 3:]), start=1):
+                doc = fitz.open(result.output_paths[index - 1])
+                try:
+                    page = doc.load_page(0)
+                    images = page.get_images(full=True)
+                    self.assertEqual(len(images), 1)
+                    image = fitz.Pixmap(doc, images[0][0])
+                    self.assertEqual((image.width, image.height, image.n), (3, 2, 3))
+                    self.assertEqual(bytes(image.samples), expected.tobytes())
+                finally:
+                    doc.close()
+
+    def test_lossless_tiff_pdf_keeps_cmyk_bytes(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            src = root / "cmyk.tif"
+            pixels = np.array([[[10, 20, 30, 40], [50, 60, 70, 80]]], dtype=np.uint8)
+            tifffile.imwrite(
+                src,
+                pixels,
+                photometric="separated",
+                compression=None,
+                resolution=(25.4, 25.4),
+            )
+            options = ExportOptions(
+                bleed_mm=0,
+                widths_mm=[2],
+                height_mm=1,
+                overlap_mm=0,
+                dpi=1,
+                output_root=root / "out",
+                preserve_vectors=True,
+            )
+
+            with patch("src.artboard_cutter_core.export.open_pdf_robust", side_effect=lambda _path: _TiffDocument(src)):
+                result = process_file(src, options)
+
+            doc = fitz.open(result.output_paths[0])
+            try:
+                page = doc.load_page(0)
+                image = fitz.Pixmap(doc, page.get_images(full=True)[0][0])
+                self.assertEqual((image.width, image.height, image.n), (2, 1, 4))
+                self.assertEqual(bytes(image.samples), pixels.tobytes())
+            finally:
+                doc.close()
+
+    def test_lossless_tiff_pdf_preserves_embedded_icc_profile(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            src = root / "profiled.tif"
+            pixels = np.array([[[10, 20, 30], [50, 60, 70]]], dtype=np.uint8)
+            profile = ImageCms.ImageCmsProfile(ImageCms.createProfile("sRGB")).tobytes()
+            tifffile.imwrite(
+                src,
+                pixels,
+                photometric="rgb",
+                compression=None,
+                resolution=(25.4, 25.4),
+                extratags=[(34675, "B", len(profile), profile, False)],
+            )
+            options = ExportOptions(
+                bleed_mm=0,
+                widths_mm=[2],
+                height_mm=1,
+                overlap_mm=0,
+                dpi=1,
+                output_root=root / "out",
+                preserve_vectors=True,
+            )
+
+            with patch("src.artboard_cutter_core.export.open_pdf_robust", side_effect=lambda _path: _TiffDocument(src)):
+                result = process_file(src, options)
+
+            doc = fitz.open(result.output_paths[0])
+            try:
+                page = doc.load_page(0)
+                image_xref = page.get_images(full=True)[0][0]
+                image = fitz.Pixmap(doc, image_xref)
+                self.assertEqual(bytes(image.samples), pixels.tobytes())
+                self.assertIn("/ICCBased", doc.xref_object(image_xref, compressed=False))
+            finally:
+                doc.close()
 
     def test_rotated_pdf_fixture_exports_expected_panel_dimensions(self):
         with tempfile.TemporaryDirectory() as td:

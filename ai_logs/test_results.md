@@ -543,3 +543,15 @@ Results:
 - Real-file timing on `2026_G2E_TADA_04.tif`: 2.49 seconds for the initial import compatibility probe, then 0.40 seconds to reopen and render the 1,600-pixel preview.
 - Focused profile/export/GUI-wrapper suite: 30 passed, 0 failed.
 - Full restricted-host suite: 126 executed, 114 passed, 12 Tk GUI checks skipped; compilation, dependency integrity, Ruff fatal/bugbear checks, and whitespace checks passed.
+
+## 2026-09-10 - Lossless raster PDF verification
+
+- Exact-byte regressions passed for RGB/LZW and CMYK/uncompressed TIFF pixels after panel extraction from the generated PDFs.
+- A valid embedded sRGB TIFF profile remained attached through an ICCBased PDF image color space.
+- Real 1.42 GB TADA CMYK TIFF: two output panels completed in 6.81 seconds and passed PDF dimension/render verification; output sizes were 134,377,224 and 127,249,001 bytes.
+- Supplied `POSTER-6.tif` LZW CMYK composite: two output panels completed in 9.16 seconds, passed verification, and rendered with artwork continuing across the panel boundary.
+- Full restricted-host suite: 129 executed, 117 passed, 12 Tk GUI checks skipped; compilation, dependency integrity, Ruff fatal/bugbear checks, and whitespace checks passed.
+- Rebuilt packaged v1.2.4 self-test passed, including Tk/TkDND startup, TIFF writing, LZW decoding, and exact-byte Lossless PDF embedding.
+- Standalone EXE: 57,989,031 bytes, ProductVersion 1.2.4, SHA-256 `0BA8AFCB2A14655D0F83436C07CBE8219EDCF6EBC7ECB5E4C72DB04FC44882BA`.
+- Setup package: 59,249,683 bytes, ProductVersion 1.2.4, SHA-256 `F2A7747714322605D1E0EF58B43D15DAEE639E226B3514E3C1BBFAED22466DBC`.
+- Both binaries remain intentionally unsigned.

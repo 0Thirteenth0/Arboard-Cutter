@@ -8,6 +8,7 @@ from .concurrency import PDF_OPERATION_LOCK
 from .errors import ExportCancelled, ExportError
 from .layout import compute_panel_layout
 from .logging_config import get_logger, log_event
+from .lossless_tiff_pdf import export_lossless_tiff_pdf
 from .pdf_io import open_pdf_robust
 from .profiles import validate_output_name
 from .raster_export import export_artboards_streaming_from_src
@@ -98,11 +99,14 @@ def _process_file_locked(file_path: Path, options: ExportOptions, log_cb=None) -
         target_h_pt = mm_to_pt(target_h_mm)
 
         export_fmt = values.export_format
-        preserve_vectors = values.preserve_vectors and getattr(src, "supports_pdf_preserve", True)
+        lossless_tiff_pdf = values.preserve_vectors and getattr(src, "supports_lossless_raster_pdf", False)
+        preserve_vectors = values.preserve_vectors and (
+            getattr(src, "supports_pdf_preserve", True) or lossless_tiff_pdf
+        )
 
         if values.preserve_vectors and not preserve_vectors and log_cb:
             log_cb(
-                "[FALLBACK] This oversized TIFF cannot use PDF Preserve; "
+                "[FALLBACK] This source cannot use Lossless PDF; "
                 "exporting it as a raster PDF at the safest available DPI."
             )
 
@@ -122,7 +126,9 @@ def _process_file_locked(file_path: Path, options: ExportOptions, log_cb=None) -
                 log_cb(f"Target full size (vector/fit WIDTH): {pt_to_mm(target_w_pt):.1f} x {calc_h_mm:.1f} mm")
             else:
                 log_cb(f"Target full size: {pt_to_mm(target_w_pt):.1f} x {pt_to_mm(target_h_pt):.1f} mm")
-            preserve_mode = "PDF PRESERVE (stretch)" if options.vector_fit_mode == "stretch" else f"PDF PRESERVE (fit {options.vector_fit_mode})"
+            preserve_mode = "LOSSLESS RASTER PDF" if lossless_tiff_pdf else (
+                "PDF PRESERVE (stretch)" if options.vector_fit_mode == "stretch" else f"PDF PRESERVE (fit {options.vector_fit_mode})"
+            )
             mode = preserve_mode if preserve_vectors else "RASTER (non-uniform)"
             color_note = "" if preserve_vectors else f"  Color: {values.color_mode}"
             log_cb(f"Mode: {mode}  Export as: {export_fmt.upper()}{color_note}  Output dir: {options.output_root}")
@@ -142,7 +148,24 @@ def _process_file_locked(file_path: Path, options: ExportOptions, log_cb=None) -
         outdir = options.output_root
         outdir.mkdir(parents=True, exist_ok=True)
 
-        if preserve_vectors:
+        if lossless_tiff_pdf:
+            output_paths = export_lossless_tiff_pdf(
+                file_path,
+                page_index=options.page_index,
+                widths_mm=values.widths_mm,
+                height_mm=values.height_mm,
+                bleed_mm=values.bleed_mm,
+                overlap_mm=values.overlap_mm,
+                overlap_mode=values.overlap_mode,
+                base_name=base_name,
+                outdir=outdir,
+                overwrite=options.overwrite,
+                cleanup_stale=options.cleanup_stale,
+                cancel_check=options.cancel_check,
+                verify_outputs=options.verify_outputs,
+                log_cb=log_cb,
+            )
+        elif preserve_vectors:
             output_paths = export_artboards_vector_uniform(
                 src,
                 values.widths_mm,

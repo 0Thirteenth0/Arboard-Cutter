@@ -37,6 +37,7 @@ from src.artboard_cutter_core.layout import (
     resize_adjacent_panel_widths as core_resize_adjacent_panel_widths,
     redistribute_panel_widths as core_redistribute_panel_widths,
 )
+from src.artboard_cutter_core.lossless_tiff_pdf import export_lossless_tiff_pdf
 from src.artboard_cutter_core.color_management import ICC_MODES, RENDERING_INTENTS
 from src.artboard_cutter_core.modes import (
     PDF_PRESERVE_EXPORT_MODE,
@@ -974,7 +975,7 @@ class App(BaseTk):
         export_mode_choices = ttk.Frame(mode_row, style="CardBody.TFrame")
         export_mode_choices.grid(row=0, column=1, sticky="w")
         self.export_mode_raster = ttk.Radiobutton(export_mode_choices, text="Raster", variable=self.export_mode_var, value="Raster")
-        self.export_mode_vector = ttk.Radiobutton(export_mode_choices, text="PDF Preserve", variable=self.export_mode_var, value=PDF_PRESERVE_EXPORT_MODE)
+        self.export_mode_vector = ttk.Radiobutton(export_mode_choices, text="Lossless PDF", variable=self.export_mode_var, value=PDF_PRESERVE_EXPORT_MODE)
         self.export_mode_raster.pack(side="left", padx=(0, 10))
         self.export_mode_vector.pack(side="left")
         self._settings_widgets.extend([self.export_mode_raster, self.export_mode_vector])
@@ -1254,7 +1255,7 @@ class App(BaseTk):
         messagebox.showinfo(
             "About Artboard Cutter",
             f"Artboard Cutter {APP_VERSION}\n\n"
-            "Production artwork panel export with streamed TIFF, PDF Preserve, ICC color management, "
+            "Production artwork panel export with streamed TIFF, lossless PDF, ICC color management, "
             "staged verification, job recovery, and reusable export presets.\n\n"
             "Copyright (C) 2026 Artboard Cutter contributors\n"
             "Licensed under GNU AGPLv3. You may redistribute and modify this program "
@@ -1300,7 +1301,7 @@ class App(BaseTk):
         self._sync_format_controls()
         if hasattr(self, "status_var"):
             self.status_var.set(
-                "PDF Preserve mode clips PDF content or embedded raster images without DPI re-rendering."
+                "Lossless PDF clips PDF content or embeds original TIFF pixels without DPI rendering."
                 if is_pdf_preserve
                 else "Raster mode renders panels at the selected DPI."
             )
@@ -2942,6 +2943,32 @@ def run_packaged_self_test() -> None:
             checked.load()
             if checked.format != "TIFF" or checked.mode != "RGB":
                 raise RuntimeError("Packaged TIFF self-test produced an invalid output.")
+
+        import numpy as np
+        import tifffile
+
+        lossless_source = root / "lossless-source.tif"
+        pixels = np.array([[[10, 20, 30], [40, 50, 60]]], dtype=np.uint8)
+        tifffile.imwrite(lossless_source, pixels, photometric="rgb", compression="lzw", rowsperstrip=1)
+        lossless_outputs = export_lossless_tiff_pdf(
+            lossless_source,
+            page_index=0,
+            widths_mm=[2],
+            height_mm=1,
+            bleed_mm=0,
+            overlap_mm=0,
+            overlap_mode="shared",
+            base_name="lossless-self-test",
+            outdir=root / "lossless-out",
+        )
+        pdf = fitz.open(lossless_outputs[0])
+        try:
+            page = pdf.load_page(0)
+            embedded = fitz.Pixmap(pdf, page.get_images(full=True)[0][0])
+            if bytes(embedded.samples) != pixels.tobytes():
+                raise RuntimeError("Packaged Lossless PDF self-test changed TIFF pixels.")
+        finally:
+            pdf.close()
 
 
 def main():

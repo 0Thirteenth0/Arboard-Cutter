@@ -38,7 +38,7 @@ def choose_safe_raster_dpi(panel_sizes_pt, requested_dpi: int, color_mode: str) 
     if adjusted < MIN_RASTER_DPI:
         raise ValueError(
             f"The largest panel is too large to render safely even at {MIN_RASTER_DPI} DPI. "
-            "Reduce its dimensions or use PDF Preserve."
+            "Reduce its dimensions or use Lossless PDF."
         )
     return adjusted, max_pixels
 
@@ -77,7 +77,7 @@ def _raise_if_silent_blank_render(page, pix, clip_src, sx: float, sy: float, col
     if _source_crop_varies(page, clip_src, sx, sy, color_mode):
         raise RuntimeError(
             "The raster engine returned a blank high-resolution panel even though the source crop contains artwork. "
-            "Try a lower DPI or use PDF Preserve."
+            "Try a lower DPI or use Lossless PDF."
         )
 
 

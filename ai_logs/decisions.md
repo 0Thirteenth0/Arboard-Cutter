@@ -276,3 +276,10 @@ Track product and implementation decisions here.
 - Use GitHub Releases for installer/standalone downloads. GitHub Packages is not needed.
 - Publish license notices, exact application source, official PyMuPDF and MuPDF source archives,
   and SHA-256 checksums alongside the binaries. Do not add local artwork or job files.
+
+## 2026-09-10 - Treat preserve mode as lossless PDF, not editable vector output
+
+- Name the user-facing mode Lossless PDF while retaining the internal `PDF Preserve` value for saved-setting and job compatibility.
+- For oversized TIFFs, preserve original 8-bit RGB, CMYK, or grayscale samples and embedded ICC data; do not apply DPI rendering, resampling, or color conversion.
+- Crop source columns into each panel PDF during one bounded strip pass rather than wrapping the full TIFF once per panel.
+- Use fast lossless Flate compression to balance export time and output size.

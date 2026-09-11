@@ -19,7 +19,7 @@ from tests.helpers import make_grid_pdf
 
 
 class ExportImprovementTests(unittest.TestCase):
-    def test_pdf_preserve_falls_back_to_raster_pdf_for_oversized_tiff(self):
+    def test_lossless_pdf_exports_oversized_tiff(self):
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
             source = root / "oversized.tif"

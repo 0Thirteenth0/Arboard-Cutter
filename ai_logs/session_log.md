@@ -441,3 +441,11 @@ Track AI-assisted work sessions here.
 - Timed the real TADA file path: the repeated MuPDF compatibility probe took 2.21 seconds, while rendering the bounded 1,479 x 1,600 preview took 0.38 seconds.
 - Cached only the fallback decision by resolved path, size, and modification time in the shared document opener. Queue import still performs the compatibility probe once; subsequent previews skip it, and changed files are probed again.
 - On a real 1.77 GB TADA TIFF, preview creation after the import probe completed in 0.40 seconds. No preview resolution or export-quality setting changed.
+
+## 2026-09-10 - Lossless raster PDF export
+
+- Replaced the temporary oversized-TIFF safe-DPI fallback with direct lossless PDF panel writing.
+- The new path reads TIFF strips in bounded blocks, writes all requested panels in one pass, preserves RGB/CMYK/grayscale bytes and embedded ICC data, and ignores the Raster DPI field.
+- Renamed the visible PDF Preserve option to Lossless PDF while retaining the old stored value for compatibility.
+- A 1.42 GB uncompressed CMYK TADA TIFF exported into two verified PDFs in 6.81 seconds; supplied LZW `POSTER-6.tif` exported into two verified PDFs in 9.16 seconds.
+- Updated README, changelog, known limitations, and release version for 1.2.4.

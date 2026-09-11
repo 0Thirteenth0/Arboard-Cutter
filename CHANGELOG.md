@@ -6,9 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+## [1.2.4] - 2026-09-10
+
+### Added
+
+- Export oversized 8-bit strip-based TIFF artwork as lossless raster PDFs without DPI rendering, resampling, or color conversion.
+
 ### Fixed
 
-- Fall back to safe raster-PDF export when PDF Preserve is selected for an oversized TIFF, instead of failing the queue item.
 - Reuse oversized-TIFF compatibility detection so the preview does not repeat a multi-second failed MuPDF probe after queue import.
 
 ## [1.2.3] - 2026-09-08

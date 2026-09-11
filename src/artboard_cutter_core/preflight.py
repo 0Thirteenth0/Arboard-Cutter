@@ -91,7 +91,7 @@ def estimate_export_job(
         warnings = []
         if source_size_bytes is None:
             disk = 0
-            warnings.append("PDF Preserve output size could not be estimated from the source file.")
+            warnings.append("Lossless PDF output size could not be estimated from the source file.")
         else:
             # Each single-panel PDF may import the source page resources. This
             # intentionally favors a conservative estimate for disk safety.

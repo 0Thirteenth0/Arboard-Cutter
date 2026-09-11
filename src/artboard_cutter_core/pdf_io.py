@@ -15,6 +15,7 @@ class _TiffDocument:
 
     is_pdf = False
     supports_pdf_preserve = False
+    supports_lossless_raster_pdf = True
 
     def __init__(self, path: Path):
         try:

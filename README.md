@@ -2,11 +2,11 @@
 
 Windows desktop tool for resizing large-format artwork and cutting it into numbered print panels, with outside bleed and repeated artwork at panel seams.
 
-**Version 1.2.3 · Windows x64 · AGPLv3 · Unsigned distribution**
+**Version 1.2.4 · Windows x64 · AGPLv3 · Unsigned distribution**
 
 **[Download the latest Windows release](https://github.com/0Thirteenth0/Arboard-Cutter/releases/latest)**
 
-Choose `ArtboardCutter-1.2.3-Setup.exe` for installation or `ArtboardCutter.exe` for
+Choose `ArtboardCutter-1.2.4-Setup.exe` for installation or `ArtboardCutter.exe` for
 standalone use. Release assets also include license notices, corresponding source,
 and `SHA256SUMS.txt` for verifying downloads.
 
@@ -31,11 +31,11 @@ Import PDF, PDF-compatible Adobe Illustrator files, JPG, PNG, or TIFF. Export ve
 
 ### Windows installer
 
-Download and run `ArtboardCutter-1.2.3-Setup.exe` from [Releases](https://github.com/0Thirteenth0/Arboard-Cutter/releases/latest), or [build it from source](#build-the-installer). Setup installs the application, license notices, a Start menu shortcut, an optional desktop shortcut, and the `.artboard-job` file association. Installation requests administrator permission.
+Download and run `ArtboardCutter-1.2.4-Setup.exe` from [Releases](https://github.com/0Thirteenth0/Arboard-Cutter/releases/latest), or [build it from source](#build-the-installer). Setup installs the application, license notices, a Start menu shortcut, an optional desktop shortcut, and the `.artboard-job` file association. Installation requests administrator permission.
 
 ### Standalone executable
 
-Download `ArtboardCutter.exe` and the accompanying `ArtboardCutter-1.2.3-Licenses.zip` from the release page. Extract the notices beside the executable and run it directly. The packaged application includes Python, Tcl/Tk, and its runtime dependencies; Python does not need to be installed separately. The standalone executable does not register Windows file associations by itself.
+Download `ArtboardCutter.exe` and the accompanying `ArtboardCutter-1.2.4-Licenses.zip` from the release page. Extract the notices beside the executable and run it directly. The packaged application includes Python, Tcl/Tk, and its runtime dependencies; Python does not need to be installed separately. The standalone executable does not register Windows file associations by itself.
 
 Both distribution formats are intentionally **unsigned**. Windows may display an unknown-publisher or SmartScreen warning. Only run a build from a source you trust, and follow any company security policy. Signing is not required for the application to work.
 
@@ -43,7 +43,7 @@ Built binaries are not checked into this Git repository. Local build outputs are
 
 ```text
 dist\ArtboardCutter.exe
-release\ArtboardCutter-1.2.3-Setup.exe
+release\ArtboardCutter-1.2.4-Setup.exe
 ```
 
 ## Quick start
@@ -52,7 +52,7 @@ release\ArtboardCutter-1.2.3-Setup.exe
 2. Click an artwork row to edit it. Multi-page documents have a separate row for each page/artboard.
 3. Enter **Panel Widths (mm)** and **Height (mm)**. For three equal panels across 3000 mm, enter `1000 1000 1000`.
 4. Set **Bleed**, **Overlap**, and **Shared** or **Left** overlap mode.
-5. Choose **Raster** for PDF/JPG/TIFF pixel output, or **PDF Preserve** to retain source vector content in PDF.
+5. Choose **Raster** for DPI-rendered PDF/JPG/TIFF output, or **Lossless PDF** to keep source pixels or PDF content without rerendering.
 6. In Raster mode, set DPI, RGB/CMYK, and optional ICC handling.
 7. Choose the **Output Folder** and tick the rows to export. Highlighting a row is not the same as ticking it.
 8. Click **Start Export**, review the preflight and replacement prompts, then confirm.
@@ -109,15 +109,15 @@ With widths `1000 1000 1000`, height `2000`, bleed `10`, and Shared overlap `40`
 
 ## Export modes and color
 
-| Setting | Raster | PDF Preserve |
+| Setting | Raster | Lossless PDF |
 | --- | --- | --- |
 | Output | PDF, JPG, TIFF/BigTIFF | PDF only |
-| Vector text/shapes | Rendered to pixels | Retained where supported by the source PDF |
+| Vector text/shapes | Rendered to pixels | Retained when already present in the source PDF/AI |
 | DPI | Controls raster resolution | Not applicable |
-| RGB/CMYK and ICC controls | Available | Disabled; source PDF content is retained |
-| Raster source images | Resampled to the target | Embedded in PDF when supported; oversized TIFFs fall back to raster PDF |
+| RGB/CMYK and ICC controls | Available | Disabled; original color samples and embedded TIFF profile are retained |
+| Raster source images | Resampled to the target | Original pixels are embedded without DPI rendering or resampling |
 
-**PDF Preserve** scales the full source page, then clips panels from the scaled master. It retains the default hidden/visible state of source PDF/Illustrator optional-content layers. This uses the PDF-compatible data saved in the file, not unsaved changes in an open Illustrator document. Save the AI file before importing/exporting.
+**Lossless PDF** scales the full artwork to the entered physical dimensions, then clips it into panels. Raster TIFF pixels are divided and embedded directly, preserving RGB/CMYK samples and an embedded TIFF ICC profile without using the DPI field. PDF/AI content follows the same clipping route and retains source vectors and default layer visibility when available. You do not need to wrap a TIFF in Illustrator first.
 
 **Raster** writes the selected format: JPG creates `.jpg`, TIFF creates `.tif`, and raster PDF creates `.pdf`. Large JPG/raster-PDF panels may use a lower common effective DPI to stay within the full-frame memory limit. TIFF streams width-adaptive strips to retain the requested DPI and uses BigTIFF for sufficiently large outputs.
 
@@ -189,24 +189,24 @@ These screenshots illustrate numbered panel output and assembly in Illustrator; 
 
 | Symptom | Check |
 | --- | --- |
-| JPG/TIFF export makes PDF | Select **Raster** first. PDF Preserve always exports PDF. |
+| JPG/TIFF export makes PDF | Select **Raster** first. Lossless PDF always exports PDF. |
 | Hidden Illustrator layer reappears | Use v1.2.1 or newer, save the AI file, and confirm the source's saved PDF-compatible layer state. |
 | Double-clicking a job does not load it | Use the current executable or install the current setup package. Legacy JSON jobs need Load Job or explicit Open With. |
 | A preset appears to do nothing | Click **Apply** and inspect export settings. Dimensions and output folder intentionally stay unchanged. |
 | Files cannot be dropped | Drop inside Artwork Queue. Avoid running only Artboard Cutter as Administrator while Explorer runs normally. |
 | A TIFF panel is blank or verification fails | Check the source crop and Activity Log. Review disk space and try a small proof export. |
-| A very large TIFF will not load, preview, or export | Use v1.2.3 or newer. Oversized 8-bit strip-based TIFFs load normally; if PDF Preserve cannot wrap one safely, the current code falls back to raster PDF. Tiled, planar-separate, or higher-bit-depth TIFFs still need flattening. |
+| A very large TIFF will not load, preview, or export | Oversized 8-bit strip-based TIFFs support preview, streamed Raster output, and Lossless PDF. Tiled, planar-separate, higher-bit-depth, or very large compressed single-strip TIFFs still need flattening. |
 | Raster DPI is lower than entered | Check preflight's effective DPI. Large JPG/raster-PDF panels share a reduced safe DPI; TIFF is streamed. |
 | Illustrator names are unavailable | Illustrator must already be running and free of modal/missing-link dialogs. Numbered names remain usable. |
 | Check for Updates is unavailable | No hosted update manifest is configured by default. Install a new supplied build or rebuild from source. |
 
-Production acceptance still requires checks in the intended printer/RIP, particularly for spot colors, overprint, transparency, linked assets, Illustrator-only constructs, very large TIFF/BigTIFF files, and extreme dimensions. PDF Preserve does not promise native Illustrator editability or remove hidden source content permanently; it retains default layer visibility in the PDF.
+Production acceptance still requires checks in the intended printer/RIP, particularly for spot colors, overprint, transparency, linked assets, Illustrator-only constructs, very large TIFF/BigTIFF files, and extreme dimensions. Lossless PDF preserves source pixels or PDF content but does not promise native Illustrator editability or remove hidden source content permanently; it retains default layer visibility in PDFs.
 
 ## Development and builds
 
 ### Run from source
 
-Use 64-bit Python with a working Tk runtime. CI is configured for Python 3.13; the local v1.2.3 Windows build was tested with Python 3.14.6. Dependencies are pinned in `requirements.txt` and `requirements-dev.txt`.
+Use 64-bit Python with a working Tk runtime. CI is configured for Python 3.13; the local v1.2.4 Windows build was tested with Python 3.14.6. Dependencies are pinned in `requirements.txt` and `requirements-dev.txt`.
 
 From the repository root:
 
@@ -224,7 +224,7 @@ python -m venv .venv
 .\.venv\Scripts\python.exe -m pip check
 ```
 
-The v1.2.3 suite contains 124 tests covering geometry, export formats, TIFF content and oversized input, hidden layers, settings/jobs, startup loading, transactional writes, queue lifecycle, themes, and release packaging. GUI tests can skip if the host cannot initialize Tk or capture a desktop. See [testing notes](docs/testing.md) for manual integration checks and [recorded results](ai_logs/test_results.md) for dated evidence.
+The v1.2.4 suite contains 129 tests covering geometry, export formats, lossless TIFF-to-PDF content, oversized input, hidden layers, settings/jobs, startup loading, transactional writes, queue lifecycle, themes, and release packaging. GUI tests can skip if the host cannot initialize Tk or capture a desktop. See [testing notes](docs/testing.md) for manual integration checks and [recorded results](ai_logs/test_results.md) for dated evidence.
 
 ### Build the standalone executable
 
@@ -254,7 +254,7 @@ $env:PATH = "$env:LOCALAPPDATA\Programs\Inno Setup 6;$env:PATH"
 .\tools\build_release.ps1 -CertificateThumbprint ''
 ```
 
-This rebuilds the standalone executable and compiles `installer/ArtboardCutter.iss` into `release/ArtboardCutter-1.2.3-Setup.exe`. The empty certificate argument explicitly keeps the build unsigned. If ISCC is not on PATH, the script leaves the standalone EXE and prints a warning instead of producing an installer.
+This rebuilds the standalone executable and compiles `installer/ArtboardCutter.iss` into `release/ArtboardCutter-1.2.4-Setup.exe`. The empty certificate argument explicitly keeps the build unsigned. If ISCC is not on PATH, the script leaves the standalone EXE and prints a warning instead of producing an installer.
 
 `APP_VERSION` in `src/artboard_cutter_core/version.py` is the version source. `tools/generate_version_metadata.py` generates `version_info.txt` and `installer/version.iss`. `update-manifest.example.json` is only a template; automatic update checking requires a configured HTTPS manifest URL.
 
@@ -277,9 +277,9 @@ tools/                            Build and metadata utilities
 
 ## Recent changes
 
-### Unreleased
+### 1.2.4
 
-- Export oversized TIFFs as safe raster PDFs when their queue item is set to PDF Preserve, rather than failing the item.
+- Export oversized TIFFs as lossless raster PDFs without DPI rendering, resampling, or color conversion.
 - Open previews faster after importing oversized TIFFs by reusing the file-revision-aware fallback decision.
 
 ### 1.2.3
@@ -318,10 +318,10 @@ warranty. See [LICENSE](LICENSE), [NOTICE](NOTICE), and
 This license covers the program, not your imported/exported artwork.
 
 The release page provides the exact application source and build scripts, plus
-the PyMuPDF/MuPDF source distribution, in `ArtboardCutter-1.2.3-Source.zip`.
+the PyMuPDF/MuPDF source distribution, in `ArtboardCutter-1.2.4-Source.zip`.
 The ordinary GitHub source-code ZIP contains only this repository.
 License texts for bundled components are included with the installer and in
-`ArtboardCutter-1.2.3-Licenses.zip`. **About** in the application also identifies
+`ArtboardCutter-1.2.4-Licenses.zip`. **About** in the application also identifies
 the license, warranty disclaimer, and source location.
 
 See [release packaging notes](docs/releasing.md) for artifact contents and checks.
